@@ -5,6 +5,14 @@ module Zundoko
  import Prelude
 
  zundoko :: [Int] -> Zundoko
- zundoko = undefined
+ zundoko = runZundokoS . toZundokoS
 
  data Zundoko = Zun Zundoko | Doko Zundoko | Kiyoshi
+ 
+ runZundokoS :: ZundokoS -> Zundoko
+ runZundokoS = undefined
+ 
+ toZundokoS :: [Int] -> ZundokoS
+ toZundokoS = undefined
+ 
+ data ZundokoS = ZunS ZundokoS | DokoS ZundokoS
