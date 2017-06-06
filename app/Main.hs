@@ -3,7 +3,7 @@
 module Main where
  import Prelude
  import System.Random
- import Lib
+ import Zundoko
 
  main :: IO ()
  main = do

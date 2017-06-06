@@ -1,4 +1,4 @@
-module Lib
+module Zundoko
  ( zundoko
  , Zundoko(Zun, Doko, Kiyoshi)
  ) where
