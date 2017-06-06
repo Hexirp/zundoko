@@ -25,6 +25,7 @@ executable zundoko-exe
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base
                      , zundoko
+                     , random
   default-language:    Haskell2010
 
 test-suite zundoko-test

@@ -1,6 +1,10 @@
 module Lib
-    ( someFunc
-    ) where
+ ( zundoko
+ , Zundoko(Zun, Doko, Kiyoshi)
+ ) where
+ import Prelude
 
-someFunc :: IO ()
-someFunc = putStrLn "someFunc"
+ zundoko :: [Int] -> Zundoko
+ zundoko = undefined
+
+ data Zundoko = Zun Zundoko | Doko Zundoko | Kiyoshi
