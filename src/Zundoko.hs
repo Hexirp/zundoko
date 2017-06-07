@@ -13,24 +13,20 @@ module Zundoko
  data Zundoko = Zun Zundoko | Doko Zundoko | Kiyoshi
  
  runZundokoS :: ZundokoS -> Zundoko
- runZundokoS = zun Zun0
+ runZundokoS = flip zun Zun0
   where
    zun = \case
-    Zun0 -> \case
-     ZunS x -> Zun $ zun Zun1 x
-     DokoS x -> Doko $ zun Zun0 x
-    Zun1 -> \case
-     ZunS x -> Zun $ zun Zun2 x
-     DokoS x -> Doko $ zun Zun0 x
-    Zun2 -> \case
-     ZunS x -> Zun $ zun Zun3 x
-     DokoS x -> Doko $ zun Zun0 x
-    Zun3 -> \case
-     ZunS x -> Zun $ zun ZunM x
-     DokoS x -> Doko $ zun Zun0 x
-    ZunM -> \case
-     ZunS x -> Zun $ zun ZunM x
-     DokoS x -> Doko $ Kiyoshi
+    ZunS x -> Zun . zun x . inc
+    DokoS x -> Doko . flip dok x
+   inc = \case
+    Zun0 -> Zun1
+    Zun1 -> Zun2
+    Zun2 -> Zun3
+    Zun3 -> ZunM
+    ZunM -> ZunM
+   dok = \case
+    ZunM -> const Kiyoshi
+    _ -> flip zun Zun0
  
  data ZundokoC = Zun0 | Zun1 | Zun2 | Zun3 | ZunM
  
