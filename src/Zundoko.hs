@@ -13,7 +13,26 @@ module Zundoko
  data Zundoko = Zun Zundoko | Doko Zundoko | Kiyoshi
  
  runZundokoS :: ZundokoS -> Zundoko
- runZundokoS = undefined
+ runZundokoS = zun Zun0
+  where
+   zun = \case
+    Zun0 -> \case
+     ZunS x -> Zun $ zun Zun1 x
+     DokoS x -> Doko $ zun Zun0 x
+    Zun1 -> \case
+     ZunS x -> Zun $ zun Zun2 x
+     DokoS x -> Doko $ zun Zun0 x
+    Zun2 -> \case
+     ZunS x -> Zun $ zun Zun3 x
+     DokoS x -> Doko $ zun Zun0 x
+    Zun3 -> \case
+     ZunS x -> Zun $ zun ZunM x
+     DokoS x -> Doko $ zun Zun0 x
+    ZunM -> \case
+     ZunS x -> Zun $ zun ZunM x
+     DokoS x -> Doko $ Kiyoshi
+ 
+ data ZundokoC = Zun0 | Zun1 | Zun2 | Zun3 | ZunM
  
  toZundokoS :: [Int] -> ZundokoS
  toZundokoS = foldr zun eoz
