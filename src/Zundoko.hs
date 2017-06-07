@@ -16,7 +16,7 @@ module Zundoko
  runZundokoS = undefined
  
  toZundokoS :: [Int] -> ZundokoS
- toZundokoS = foldr eoz zun
+ toZundokoS = foldr zun eoz
   where
    eoz = ZunS $ ZunS $ ZunS $ ZunS dos
    dos = DokoS dos
