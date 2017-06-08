@@ -9,17 +9,17 @@ module Zundoko.Object where
  import Prelude
 
  randGen :: (RandomGen a, Random r, Monad m) => a -> Object ((->) r) m
- randGen = stateful $ flip fmap $ state random
+ randGen = streamObj $ state random
 
  zundokoStr :: (Monad m) => Object ((->) Int) m -> Object ((->) Bool) m
- zundokoStr = stateful $ flip fmap $ do
+ zundokoStr = streamObj $ do
   obj <- get
   lift $ do
    (n, _) <- obj @- id
    return $ (n `mod` 2) == 1
  
  zundokoMtr :: (Monad m) => Int -> Object ((->) Bool) m -> Object ((->) Bool) (MaybeT m)
- zundokoMtr = curry $ stateful $ flip fmap $ s
+ zundokoMtr = curry $ streamObj $ s
   where
    -- :: StateT (Int, Object ((->) Bool) (MaybeT m) Bool
    s = do
@@ -35,3 +35,6 @@ module Zundoko.Object where
     return $ b
    -- :: MaybeT m a
    nothing = MaybeT $ return Nothing
+   
+ streamObj :: (Monad m) => StateT s m a -> s -> Object ((->) a) m
+ streamObj = stateful . flip fmap
