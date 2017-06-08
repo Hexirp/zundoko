@@ -7,9 +7,5 @@ module Zundoko.Object where
  import Control.Monad.State.Strict
  import Prelude
 
- data Rand ret where
-  Next :: (Random a) => Rand a
-
- randGen :: (Monad m, RandomGen a) => a -> Object Rand m
- randGen = stateful $ \case
-  Next -> state random
+ randGen :: (RandomGen a, Random r, Monad m) => a -> Object ((->) r) m
+ randGen = stateful $ (<$> state random)
