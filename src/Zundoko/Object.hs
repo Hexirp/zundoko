@@ -12,10 +12,8 @@ module Zundoko.Object where
 
  zundokoStr :: (Monad m) => Object ((->) Int) m -> Object ((->) Bool) m
  zundokoStr = streamObj $ do
-  obj <- get
-  lift $ do
-   (n, _) <- obj @- id
-   return $ (n `mod` 2) == 1
+  n <- await
+  return $ (n `mod` 2) == 1
  
  zundokoMtr :: (Monad m) => Int -> Object ((->) Bool) m -> Object ((->) Bool) (MaybeT m)
  zundokoMtr = curry $ streamObj $ s
@@ -32,11 +30,12 @@ module Zundoko.Object where
       else
        put (0, obj')
     return $ b
-   -- :: MaybeT m a
-   nothing = MaybeT $ return Nothing
    
  streamObj :: (Monad m) => StateT s m a -> s -> Object ((->) a) m
  streamObj s = stateful $ flip fmap $ s
  
  await :: StateT (Object ((->) a) m) m a
  await = StateT (@- id)
+
+ nothing :: (Monad m) => MaybeT m a
+ nothing = MaybeT $ return Nothing
