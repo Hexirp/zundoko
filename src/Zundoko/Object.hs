@@ -1,4 +1,3 @@
-{-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 
 module Zundoko.Object where
@@ -38,3 +37,6 @@ module Zundoko.Object where
    
  streamObj :: (Monad m) => StateT s m a -> s -> Object ((->) a) m
  streamObj = stateful . flip fmap
+ 
+ await :: StateT (Object ((->) a) m) m a
+ await = StateT (@- id)
