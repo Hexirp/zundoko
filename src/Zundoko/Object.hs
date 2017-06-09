@@ -36,7 +36,7 @@ module Zundoko.Object where
    nothing = MaybeT $ return Nothing
    
  streamObj :: (Monad m) => StateT s m a -> s -> Object ((->) a) m
- streamObj = stateful . flip fmap
+ streamObj s = stateful $ flip fmap $ s
  
  await :: StateT (Object ((->) a) m) m a
  await = StateT (@- id)
