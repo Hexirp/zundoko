@@ -35,6 +35,9 @@ module Zundoko.Object where
  streamObj :: (Monad m) => StateT s m a -> s -> Object ((->) a) m
  streamObj s = stateful $ flip fmap $ s
  
+ streamObj2 :: (Monad m) => StateT s1 (StateT s2 m) a -> s1 -> s2 -> Object ((->) a) m
+ streamObj2 s a b = streamObj s a @>>@ variable b
+
  await :: StateT (Object ((->) a) m) m a
  await = StateT (@- id)
 
