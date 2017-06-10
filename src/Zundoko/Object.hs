@@ -16,25 +16,25 @@ module Zundoko.Object where
   n <- await
   return $ (n `mod` 2) == 1
  
- zundokoMtr :: (Monad m) => Int -> Object ((->) Bool) m -> Object ((->) Bool) (MaybeT m)
- zundokoMtr = curry $ streamObj $ s
-  where
-   -- :: StateT (Int, Object ((->) Bool) (MaybeT m) Bool
-   s = do
-    (n, obj) <- get
-    (b, obj') <- lift $ lift $ obj @- id
-    case b of
-     False -> put (n + 1, obj')
-     True -> if 4 <= n
-      then
+ zundokoMtr :: (Monad m) => Object ((->) Bool) m -> Int -> Object ((->) Bool) (MaybeT m)
+ zundokoMtr = streamObj2 $ do
+  a <- awaitOn $ lift . lift
+  case a of
+   False ->
+    lift $ modify (1 +)
+   True ->
+    lift $ do
+     n <- get
+     case 4 <= n of
+      False ->
+       modify $ const 0
+      True ->
        lift $ nothing
-      else
-       put (0, obj')
-    return $ b
-   
- streamObj :: (Monad m) => StateT s m a -> s -> Object ((->) a) m
- streamObj s = stateful $ flip fmap $ s
+  return a
  
+ streamObj :: (Monad m) => StateT s m a -> s -> Object ((->) a) m
+ streamObj s = stateful $ flip fmap s
+
  streamObj2 :: (Monad m) => StateT s1 (StateT s2 m) a -> s1 -> s2 -> Object ((->) a) m
  streamObj2 s a b = streamObj s a @>>@ variable b
 
