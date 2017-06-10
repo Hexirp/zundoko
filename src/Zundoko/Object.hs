@@ -1,3 +1,4 @@
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE LambdaCase #-}
 
 module Zundoko.Object where
@@ -36,6 +37,9 @@ module Zundoko.Object where
  
  await :: StateT (Object ((->) a) m) m a
  await = StateT (@- id)
+
+ awaitOn :: (forall x. m x -> n x) -> StateT (Object ((->) a) m) n a
+ awaitOn f = StateT $ f . (@- id)
 
  nothing :: (Monad m) => MaybeT m a
  nothing = MaybeT $ return Nothing
