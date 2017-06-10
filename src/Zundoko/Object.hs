@@ -4,8 +4,10 @@
 module Zundoko.Object where
  import System.Random
  import Control.Object
- import Control.Monad.State.Strict
+ import Control.Monad.Trans.State.Strict
  import Control.Monad.Trans.Maybe
+ import Control.Monad.Trans
+ import Data.Proxy
  import Prelude
 
  randGen :: (RandomGen a, Random r, Monad m) => a -> Object ((->) r) m
@@ -46,3 +48,19 @@ module Zundoko.Object where
 
  nothing :: (Monad m) => MaybeT m a
  nothing = MaybeT $ return Nothing
+
+ newtype ProxyT m a = ProxyT { outProxyT :: m (Proxy a) }
+
+ instance (Functor m) => Functor (ProxyT m) where
+  fmap f (ProxyT x) = ProxyT $ fmap (fmap f) x
+
+ instance (Applicative m) => Applicative (ProxyT m) where
+  pure = ProxyT . pure . pure
+
+  (ProxyT f) <*> (ProxyT x) = ProxyT $ (<*>) <$> f <*> x
+
+ instance (Monad m) => Monad (ProxyT m) where
+  (ProxyT x) >>= f = ProxyT $ Proxy <$ fmap (fmap f) x
+
+ instance MonadTrans ProxyT where
+  lift = ProxyT . (Proxy <$)
