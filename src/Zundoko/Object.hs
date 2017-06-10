@@ -34,6 +34,16 @@ module Zundoko.Object where
        lift $ nothing
   return a
  
+ zundokoIO :: Object ((->) Bool) (MaybeT IO) -> Object ((->) ()) (MaybeT IO)
+ zundokoIO = streamObj $ do
+  a <- await
+  case a of
+   False ->
+    lift $ lift $ putStrLn "zun"
+   True ->
+    lift $ lift $ putStrLn "doko"
+  return ()
+
  streamObj :: (Monad m) => StateT s m a -> s -> Object ((->) a) m
  streamObj s = stateful $ flip fmap s
 
