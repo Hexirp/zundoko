@@ -42,15 +42,16 @@ module Zundoko.Object where
     lift $ lift $ putStrLn "zun"
    True ->
     lift $ lift $ putStrLn "doko"
-  return ()
 
- doStream :: (Monad m) => ProxyT m () -> Object ((->) ()) (MaybeT m) -> Object ((->) ()) (ProxyT m)
- doStream m obj = do
-  lift $ do
-   a <- runMaybeT $ obj @- id
-   case a of
-    Nothing -> m
-    Just (_, obj') -> return obj'
+ doStream :: (Monad m) => Object ((->) ()) (MaybeT m) -> Object ((->) ()) (ProxyT m)
+ doStream = streamObj $ run
+  where
+   run :: Monad m => StateT (Object ((->) ()) (MaybeT m)) (ProxyT m) ()
+   run = do
+    awaitOn $ toP
+    run
+   toP :: Functor f => MaybeT f a -> ProxyT f a
+   toP = ProxyT . (Proxy <$) . runMaybeT
 
  streamObj :: (Monad m) => StateT s m a -> s -> Object ((->) a) m
  streamObj s = stateful $ flip fmap s
@@ -82,3 +83,9 @@ module Zundoko.Object where
 
  instance MonadTrans ProxyT where
   lift = ProxyT . (Proxy <$)
+ 
+ law1 :: Maybe (Proxy a)
+ law1 = outProxyT $ ProxyT (Just Proxy) <* ProxyT Nothing
+
+ law2 :: Maybe (Proxy a)
+ law2 = outProxyT $ ProxyT (Just Proxy) >> ProxyT Nothing
