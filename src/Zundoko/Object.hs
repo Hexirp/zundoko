@@ -7,6 +7,7 @@ module Zundoko.Object where
  import Control.Monad.Trans.State.Strict
  import Control.Monad.Trans.Maybe
  import Control.Monad.Trans
+ import Data.Functor.Identity
  import Data.Proxy
  import Prelude
 
@@ -33,25 +34,11 @@ module Zundoko.Object where
       True ->
        lift $ nothing
   return a
- 
- zundokoIO :: Object ((->) Bool) (MaybeT IO) -> Object ((->) ()) (MaybeT IO)
- zundokoIO = streamObj $ do
-  a <- await
-  case a of
-   False ->
-    lift $ lift $ putStrLn "zun"
-   True ->
-    lift $ lift $ putStrLn "doko"
 
- doStream :: (Monad m) => Object ((->) ()) (MaybeT m) -> Object ((->) ()) (ProxyT m)
- doStream = streamObj $ run
-  where
-   run :: Monad m => StateT (Object ((->) ()) (MaybeT m)) (ProxyT m) ()
-   run = do
-    awaitOn $ toP
-    run
-   toP :: Functor f => MaybeT f a -> ProxyT f a
-   toP = ProxyT . (Proxy <$) . runMaybeT
+ foldStream :: r -> (a -> r -> r) -> Object ((->) a) (MaybeT Identity) -> r
+ foldStream x f obj = case obj @- id of
+  MaybeT (Identity Nothing) -> x
+  MaybeT (Identity (Just (a, obj'))) -> f a $ foldStream x f obj'
 
  streamObj :: (Monad m) => StateT s m a -> s -> Object ((->) a) m
  streamObj s = stateful $ flip fmap s
@@ -67,25 +54,3 @@ module Zundoko.Object where
 
  nothing :: (Monad m) => MaybeT m a
  nothing = MaybeT $ return Nothing
-
- newtype ProxyT m a = ProxyT { outProxyT :: m (Proxy a) }
-
- instance (Functor m) => Functor (ProxyT m) where
-  fmap f (ProxyT x) = ProxyT $ fmap (fmap f) x
-
- instance (Applicative m) => Applicative (ProxyT m) where
-  pure = ProxyT . pure . pure
-
-  (ProxyT f) <*> (ProxyT x) = ProxyT $ (<*>) <$> f <*> x
-
- instance (Applicative m) => Monad (ProxyT m) where
-  (ProxyT x) >>= f = ProxyT $ Proxy <$ fmap (fmap f) x
-
- instance MonadTrans ProxyT where
-  lift = ProxyT . (Proxy <$)
- 
- law1 :: Maybe (Proxy a)
- law1 = outProxyT $ ProxyT (Just Proxy) <* ProxyT Nothing
-
- law2 :: Maybe (Proxy a)
- law2 = outProxyT $ ProxyT (Just Proxy) >> ProxyT Nothing
