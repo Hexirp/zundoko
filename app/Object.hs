@@ -9,4 +9,4 @@ module Object where
   let fol x = case x of {
    False -> (putStrLn "Zun" >>);
    True -> (putStrLn "Doko" >>)}
-  foldStream (putStrLn "Kiyoshi") fol $ zundokoMtr (zundokoStr $ randGen g) 0
+  foldStream (putStrLn "Doko" >> putStrLn "Kiyoshi") fol $ zundokoMtr (zundokoStr $ randGen g) 0
