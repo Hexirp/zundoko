@@ -1,5 +1,6 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUGAE ScopedTypeVariables #-}
 
 module Zundoko.Object where
  import System.Random
@@ -49,8 +50,17 @@ module Zundoko.Object where
  await :: StateT (Object ((->) a) m) m a
  await = StateT (@- id)
 
- awaitOn :: (forall x. m x -> n x) -> StateT (Object ((->) a) m) n a
- awaitOn f = StateT $ f . (@- id)
+ awaitOn
+  :: forall m a n r. (m (a, Object ((->) a) m) -> n (r, Object ((->) a) m))
+  -> StateT (Object ((->) a) m) n r
+ awaitOn f = i
+  where
+   g :: Object ((->) a) m -> m (a, Object ((->) a) m)
+   g = (@- id)
+   h :: Object ((->) a) m -> n (r, Object ((->) a) m)
+   h = f . g
+   i :: StateT (Object ((->) a) m) n r
+   i = StateT h
 
  nothing :: (Monad m) => MaybeT m a
  nothing = MaybeT $ return Nothing
