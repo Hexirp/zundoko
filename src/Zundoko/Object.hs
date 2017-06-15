@@ -43,7 +43,7 @@ module Zundoko.Object where
  streamObj2 s a b = streamObj s a @>>@ variable b
 
  await :: StateT (Object ((->) a) m) m a
- await = StateT (@- id)
+ await = awaitOn id
 
  awaitOn
   :: (m (a, Object ((->) a) m) -> n (r, Object ((->) a) m))
