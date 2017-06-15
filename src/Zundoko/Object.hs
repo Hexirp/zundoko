@@ -1,6 +1,6 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE LambdaCase #-}
-{-# LANGUGAE ScopedTypeVariables #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Zundoko.Object where
  import System.Random
@@ -9,7 +9,6 @@ module Zundoko.Object where
  import Control.Monad.Trans.Maybe
  import Control.Monad.Trans
  import Data.Functor.Identity
- import Data.Proxy
  import Prelude
 
  randGen :: (RandomGen a, Random r, Monad m) => a -> Object ((->) r) m
