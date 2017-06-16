@@ -7,7 +7,7 @@ module Object where
  main :: IO ()
  main = do
   g <- getStdGen
-  runZundoko $ zundokoMtr (zundokoStr $ randGen g) 0
+  runZundoko $ zundokoMtr $ zundokoStr $ randGen g
  
  runZundoko = foldListObj
   (putStrLn "Doko" >> putStrLn "Kiyoshi")

@@ -16,8 +16,11 @@ module Zundoko.Object where
  zundokoStr :: Functor m => StrObj m Int -> StrObj m Bool
  zundokoStr = mapStrObj $ (1 ==) . (`mod` 2)
  
- zundokoMtr :: Monad m => StrObj m Bool -> Int -> StrObj (MaybeT m) Bool
- zundokoMtr = streamObj2 $ do
+ zundokoMtr :: Monad m => StrObj m Bool -> StrObj (MaybeT m) Bool
+ zundokoMtr o = zundokoMtr' o 0
+
+ zundokoMtr' :: Monad m => StrObj m Bool -> Int -> StrObj (MaybeT m) Bool
+ zundokoMtr' = streamObj2 $ do
   a <- awaitOn $ lift . lift
   case a of
    False ->
@@ -56,9 +59,7 @@ module Zundoko.Object where
  await :: StateT (StrObj m a) m a
  await = awaitOn id
 
- awaitOn
-  :: (m (a, StrObj m a) -> n (b, StrObj m a))
-  -> StateT (StrObj m a) n b
+ awaitOn :: (m (a, StrObj m a) -> n (b, StrObj m a)) -> StateT (StrObj m a) n b
  awaitOn f = StateT $ f . (@- id)
 
  nothing :: Monad m => MaybeT m a
