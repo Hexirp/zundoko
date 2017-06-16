@@ -1,3 +1,5 @@
+{-# LANGUAGE LambdaCase #-}
+
 module Zundoko.Object where
  import System.Random
  import Control.Object
@@ -32,13 +34,13 @@ module Zundoko.Object where
 
  type StrObj m a = Object ((->) a) m
 
- foldStream :: r -> (a -> r -> r) -> StrObj (MaybeT Identity) a -> r
- foldStream x f obj = case obj @- id of
-  MaybeT (Identity Nothing) -> x
-  MaybeT (Identity (Just (a, obj'))) -> f a $ foldStream x f obj'
- 
  foldStrObj :: Functor f => (f (a, r) -> r) -> StrObj f a -> r
  foldStrObj f o = f $ fmap (second $ foldStrObj f) $ o @- id
+
+ foldListObj :: r -> (a -> r -> r) -> StrObj (MaybeT Identity) a -> r
+ foldListObj x f = foldStrObj $ \case
+  MaybeT (Identity Nothing) -> x
+  MaybeT (Identity (Just (a, r))) -> f a r
  
  mapStrObj :: Functor f => (a -> b) -> StrObj f a -> StrObj f b
  mapStrObj f o = Object $ \g -> fmap (first g . f') (o @- id)
