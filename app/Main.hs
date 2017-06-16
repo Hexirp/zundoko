@@ -2,14 +2,20 @@
 
 module Main where
  import Prelude
+ import System.Environment
  import System.Random
  import Zundoko
+ import qualified Object as O
 
  main :: IO ()
  main = do
-  putStrLn ""
-  rs <- randStream
-  runZundoko $ zundoko rs
+  s <- getArgs
+  case s of
+   ((o:_):_) -> O.main
+   _ -> do
+    putStrLn ""
+    rs <- randStream
+    runZundoko $ zundoko rs
 
  randStream :: IO [Int]
  randStream = do
