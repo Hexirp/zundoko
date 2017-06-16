@@ -5,7 +5,7 @@ module Zundoko.Object where
  import Control.Monad.Trans.Maybe
  import Control.Monad.Trans
  import Data.Functor.Identity
- import Control.Arrow (first)
+ import Control.Arrow (first, second)
  import Prelude
 
  randGen :: (RandomGen a, Random r, Monad m) => a -> StrObj m r
@@ -36,6 +36,9 @@ module Zundoko.Object where
  foldStream x f obj = case obj @- id of
   MaybeT (Identity Nothing) -> x
   MaybeT (Identity (Just (a, obj'))) -> f a $ foldStream x f obj'
+ 
+ foldStrObj :: Functor f => (f (a, r) -> r) -> StrObj f a -> r
+ foldStrObj f o = f $ fmap (second $ foldStrObj f) $ o @- id
  
  mapStrObj :: Functor f => (a -> b) -> StrObj f a -> StrObj f b
  mapStrObj f o = Object $ \g -> fmap (first g . f') (o @- id)
