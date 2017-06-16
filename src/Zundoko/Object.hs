@@ -10,10 +10,8 @@ module Zundoko.Object where
  randGen :: (RandomGen a, Random r, Monad m) => a -> StrObj m r
  randGen = streamObj $ state random
 
- zundokoStr :: Monad m => StrObj m Int -> StrObj m Bool
- zundokoStr = streamObj $ do
-  n <- await
-  return $ (n `mod` 2) == 1
+ zundokoStr :: Functor m => StrObj m Int -> StrObj m Bool
+ zundokoStr = mapStrObj $ (1 ==) . (`mod` 2)
  
  zundokoMtr :: Monad m => StrObj m Bool -> Int -> StrObj (MaybeT m) Bool
  zundokoMtr = streamObj2 $ do
@@ -37,6 +35,11 @@ module Zundoko.Object where
  foldStream x f obj = case obj @- id of
   MaybeT (Identity Nothing) -> x
   MaybeT (Identity (Just (a, obj'))) -> f a $ foldStream x f obj'
+ 
+ mapStrObj :: Functor f => (a -> b) -> StrObj f a -> StrObj f b
+ mapStrObj f o = Object $ \g -> fmap (f' g) (o @- id)
+  where
+   f' g (a, o') = (g (f a), mapStrObj f o')
 
  streamObj :: Monad m => StateT s m a -> s -> StrObj m a
  streamObj s = stateful $ flip fmap s
