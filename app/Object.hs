@@ -4,8 +4,8 @@ module Object where
  import Data.Bool (bool)
  import Prelude
 
- zundoko :: IO ()
- zundoko = do
+ main :: IO ()
+ main = do
   g <- getStdGen
   runZundoko $ zundokoMtr (zundokoStr $ randGen g) 0
  

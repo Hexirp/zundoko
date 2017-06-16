@@ -4,7 +4,6 @@ module Main where
  import Prelude
  import System.Random
  import Zundoko
- import qualified Object as Obj
 
  main :: IO ()
  main = do
@@ -27,6 +26,3 @@ module Main where
    runZundoko x
   Kiyoshi -> do
    putStrLn "キ・ヨ・シ！"
-
- mainObj :: IO ()
- mainObj = Obj.zundoko
