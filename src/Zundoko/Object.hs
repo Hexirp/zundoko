@@ -24,16 +24,18 @@ module Zundoko.Object where
   a <- awaitOn $ lift . lift
   case a of
    False ->
-    lift $ modify (1 +)
+    lift $ do
+     modify (1 +)
+     return a
    True ->
     lift $ do
      n <- get
      case 4 <= n of
-      False ->
-       modify $ const 0
+      False -> do
+       put 0
+       return a
       True ->
        lift $ nothing
-  return a
 
  type StrObj m a = Object ((->) a) m
 
