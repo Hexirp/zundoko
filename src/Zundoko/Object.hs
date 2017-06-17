@@ -1,12 +1,12 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Zundoko.Object where
- import System.Random
+ import System.Random (RandomGen, Random, random)
  import Control.Object
  import Control.Monad.Trans.State.Strict
- import Control.Monad.Trans.Maybe
+ import Control.Monad.Trans.Maybe (MaybeT(MaybeT))
  import Control.Monad.Trans
- import Data.Functor.Identity
+ import Data.Functor.Identity (Identity(Identity))
  import Control.Arrow (first, second)
  import Prelude
 
