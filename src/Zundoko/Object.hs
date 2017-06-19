@@ -1,4 +1,5 @@
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE GADTs #-}
 
 module Zundoko.Object where
  import System.Random (RandomGen, Random, random)
@@ -36,6 +37,16 @@ module Zundoko.Object where
        return a
       True ->
        lift $ nothing
+ 
+ zundokoTrans :: StrObj (MaybeT Identity) Bool -> StrObj (Skeleton Zundoko) ()
+ zundokoTrans = undefined
+
+ data Zundoko tag where
+  Zun :: Zundoko (Zundoko a)
+  Doko :: Zundoko (Zundoko a)
+  Kiyoshi :: Zundoko ()
+ 
+ data Skeleton f a = Skeleton (f a) -- Mock
 
  type StrObj m a = Object ((->) a) m
 
