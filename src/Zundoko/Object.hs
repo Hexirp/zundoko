@@ -4,6 +4,7 @@
 module Zundoko.Object where
  import System.Random (RandomGen, Random, random)
  import Control.Object
+ import Control.Monad.Skeleton
  import Control.Monad.Trans.State.Strict
  import Control.Monad.Trans.Maybe (MaybeT(MaybeT))
  import Control.Monad.Trans
@@ -45,8 +46,6 @@ module Zundoko.Object where
   Zun :: Zundoko (Zundoko a)
   Doko :: Zundoko (Zundoko a)
   Kiyoshi :: Zundoko ()
- 
- data Skeleton f a = Skeleton (f a) -- Mock
 
  type StrObj m a = Object ((->) a) m
 

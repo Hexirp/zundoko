@@ -20,8 +20,9 @@ library
   build-depends:       base >= 4.7 && < 5
                      , random
                      , objective
-                     , mtl
+                     , monad-skeleton
                      , transformers
+                     , mtl
   default-language:    Haskell2010
 
 executable zundoko-exe
