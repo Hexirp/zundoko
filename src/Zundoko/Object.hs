@@ -46,6 +46,15 @@ module Zundoko.Object where
   Zun :: Zundoko (Zundoko a)
   Doko :: Zundoko (Zundoko a)
   Kiyoshi :: Zundoko ()
+ 
+ zun :: Skeleton Zundoko (Zundoko a)
+ zun = bone Zun
+
+ doko :: Skeleton Zundoko (Zundoko a)
+ doko = bone Doko
+
+ kiyoshi :: Skeleton Zundoko ()
+ kiyoshi = bone Kiyoshi
 
  type StrObj m a = Object ((->) a) m
 
