@@ -47,22 +47,28 @@ module Zundoko.Object where
  
  zundokoRun :: MaybeT Identity (Bool, StrObj (MaybeT Identity) Bool) -> Skeleton Zundoko ((), StrObj (MaybeT Identity) Bool)
  zundokoRun = \case
-  MaybeT (Identity Nothing) -> doko >> kiyoshi
-  MaybeT (Identity (Just (False, o))) -> zun >> zundokoRun (o @- id)
-  MaybeT (Identity (Just (True, o))) -> doko >> zundokoRun (o @- id)
+  MaybeT (Identity Nothing) -> do
+   doko
+   kiyoshi
+  MaybeT (Identity (Just (False, o))) -> do
+   zun
+   zundokoRun (o @- id)
+  MaybeT (Identity (Just (True, o))) -> do
+   doko
+   zundokoRun (o @- id)
 
  data Zundoko tag where
-  Zun :: Zundoko (Zundoko a)
-  Doko :: Zundoko (Zundoko a)
-  Kiyoshi :: Zundoko ()
+  Zun :: Zundoko ()
+  Doko :: Zundoko ()
+  Kiyoshi :: Zundoko a
  
- zun :: Skeleton Zundoko (Zundoko a)
+ zun :: Skeleton Zundoko ()
  zun = bone Zun
 
- doko :: Skeleton Zundoko (Zundoko a)
+ doko :: Skeleton Zundoko ()
  doko = bone Doko
 
- kiyoshi :: Skeleton Zundoko ()
+ kiyoshi :: Skeleton Zundoko a
  kiyoshi = bone Kiyoshi
 
  type StrObj m a = Object ((->) a) m
