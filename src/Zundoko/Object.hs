@@ -109,3 +109,6 @@ module Zundoko.Object where
 
  nothing :: Monad m => MaybeT m a
  nothing = MaybeT $ return Nothing
+
+ downMaybeT :: Functor f => MaybeT f () -> f ()
+ downMaybeT (MaybeT x) = maybe () id <$> x
