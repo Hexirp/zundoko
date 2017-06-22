@@ -9,7 +9,7 @@ module Zundoko.Object where
  import Control.Monad.Trans.Maybe (MaybeT(MaybeT))
  import Control.Monad.Trans
  import Data.Functor.Identity (Identity(Identity))
- import Control.Arrow (first, second)
+ import Control.Arrow ((>>>), first, second)
  import Prelude
 
  randGen :: (RandomGen a, Random r, Monad m) => a -> StrObj m r
@@ -50,6 +50,21 @@ module Zundoko.Object where
   MaybeT (Identity Nothing) -> doko >> kiyoshi
   MaybeT (Identity (Just (False, o))) -> zun >> zundokoRun (o @- id)
   MaybeT (Identity (Just (True, o))) -> doko >> zundokoRun (o @- id)
+ 
+ interpretZundoko :: Skeleton Zundoko a -> MaybeT IO a
+ interpretZundoko = debone >>> \case
+  Return a -> return a
+  Zun :>>= k -> do
+   a <- lift $ putStrLn "zun"
+   interpretZundoko $ k a
+  Doko :>>= k -> do
+   a <- lift $ putStrLn "doko"
+   interpretZundoko $ k a
+  Kiyoshi :>>= k -> do
+   lift $ putStrLn "doko"
+   lift $ putStrLn "kiyoshi"
+   a <- nothing
+   interpretZundoko $ k a
 
  data Zundoko tag where
   Zun :: Zundoko ()
