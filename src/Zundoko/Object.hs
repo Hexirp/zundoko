@@ -6,10 +6,11 @@ module Zundoko.Object where
  import Control.Object
  import Control.Monad.Skeleton
  import Control.Monad.Trans.State.Strict
- import Control.Monad.Trans.Maybe (MaybeT(MaybeT))
+ import Control.Monad.Trans.Maybe (MaybeT(MaybeT), runMaybeT)
  import Control.Monad.Trans
  import Data.Functor.Identity (Identity(Identity))
  import Control.Arrow ((>>>), first, second)
+ import Data.Functor (void)
  import Prelude
 
  randGen :: (RandomGen a, Random r, Monad m) => a -> StrObj m r
@@ -42,10 +43,9 @@ module Zundoko.Object where
  zundokoTrans :: StrObj (MaybeT Identity) Bool -> StrObj (Skeleton Zundoko) ()
  zundokoTrans = liftStr zundokoRun
 
- liftStr :: Monad n => (m (a, StrObj m a) -> n (b, StrObj m a)) -> StrObj m a -> StrObj n b
- liftStr = streamObj . awaitOn
-
- zundokoRun :: MaybeT Identity (Bool, StrObj (MaybeT Identity) Bool) -> Skeleton Zundoko ((), StrObj (MaybeT Identity) Bool)
+ zundokoRun
+  :: MaybeT Identity (Bool, StrObj (MaybeT Identity) Bool)
+  -> Skeleton Zundoko ((), StrObj (MaybeT Identity) Bool)
  zundokoRun = \case
   MaybeT (Identity Nothing) -> doko >> kiyoshi
   MaybeT (Identity (Just (False, o))) -> zun >> zundokoRun (o @- id)
@@ -95,6 +95,12 @@ module Zundoko.Object where
   where
    f' (a, o') = (f a, mapStrObj f o')
 
+ liftStr
+  :: Monad n
+  => (m (a, StrObj m a) -> n (b, StrObj m a))
+  -> StrObj m a -> StrObj n b
+ liftStr = streamObj . awaitOn
+
  streamObj :: Monad m => StateT s m a -> s -> StrObj m a
  streamObj s = stateful $ flip fmap s
 
@@ -107,8 +113,10 @@ module Zundoko.Object where
  awaitOn :: (m (a, StrObj m a) -> n (b, StrObj m a)) -> StateT (StrObj m a) n b
  awaitOn f = StateT $ f . (@- id)
 
+ -- MaybeT
+
  nothing :: Monad m => MaybeT m a
  nothing = MaybeT $ return Nothing
 
- downMaybeT :: Functor f => MaybeT f () -> f ()
- downMaybeT (MaybeT x) = maybe () id <$> x
+ voidMaybeT :: Functor f => MaybeT f a -> f ()
+ voidMaybeT = void . runMaybeT
