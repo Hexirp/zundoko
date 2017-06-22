@@ -40,22 +40,16 @@ module Zundoko.Object where
        lift $ nothing
  
  zundokoTrans :: StrObj (MaybeT Identity) Bool -> StrObj (Skeleton Zundoko) ()
- zundokoTrans = streamObj $ zundokoTransS
+ zundokoTrans = liftStr zundokoRun
 
- zundokoTransS :: StateT (StrObj (MaybeT Identity) Bool) (Skeleton Zundoko) ()
- zundokoTransS = awaitOn $ zundokoRun
- 
+ liftStr :: Monad n => (m (a, StrObj m a) -> n (b, StrObj m a)) -> StrObj m a -> StrObj n b
+ liftStr = streamObj . awaitOn
+
  zundokoRun :: MaybeT Identity (Bool, StrObj (MaybeT Identity) Bool) -> Skeleton Zundoko ((), StrObj (MaybeT Identity) Bool)
  zundokoRun = \case
-  MaybeT (Identity Nothing) -> do
-   doko
-   kiyoshi
-  MaybeT (Identity (Just (False, o))) -> do
-   zun
-   zundokoRun (o @- id)
-  MaybeT (Identity (Just (True, o))) -> do
-   doko
-   zundokoRun (o @- id)
+  MaybeT (Identity Nothing) -> doko >> kiyoshi
+  MaybeT (Identity (Just (False, o))) -> zun >> zundokoRun (o @- id)
+  MaybeT (Identity (Just (True, o))) -> doko >> zundokoRun (o @- id)
 
  data Zundoko tag where
   Zun :: Zundoko ()
