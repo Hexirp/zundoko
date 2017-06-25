@@ -66,6 +66,12 @@ module Zundoko.Object where
    a <- nothing
    interpretZundoko $ k a
 
+ zundokoInterpreter :: Object (Skeleton Zundoko) (MaybeT IO)
+ zundokoInterpreter = liftO interpretZundoko
+
+ zundokoInp :: Object f (Skeleton Zundoko) -> Object f (MaybeT IO)
+ zundokoInp = (@>>@ zundokoInterpreter)
+
  data Zundoko tag where
   Zun :: Zundoko ()
   Doko :: Zundoko ()
