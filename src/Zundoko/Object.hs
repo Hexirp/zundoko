@@ -61,7 +61,6 @@ module Zundoko.Object where
    a <- lift $ putStrLn "doko"
    interpretZundoko $ k a
   Kiyoshi :>>= k -> do
-   lift $ putStrLn "doko"
    lift $ putStrLn "kiyoshi"
    a <- nothing
    interpretZundoko $ k a
