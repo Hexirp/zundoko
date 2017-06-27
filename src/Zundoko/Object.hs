@@ -1,13 +1,16 @@
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE GADTs #-}
 
 module Zundoko.Object where
- import System.Random
+ import System.Random (RandomGen, Random, random)
  import Control.Object
+ import Control.Monad.Skeleton
  import Control.Monad.Trans.State.Strict
- import Control.Monad.Trans.Maybe
+ import Control.Monad.Trans.Maybe (MaybeT(MaybeT), runMaybeT)
  import Control.Monad.Trans
- import Data.Functor.Identity
- import Control.Arrow (first, second)
+ import Data.Functor.Identity (Identity(Identity))
+ import Control.Arrow ((>>>), first, second)
+ import Data.Functor (void)
  import Prelude
 
  randGen :: (RandomGen a, Random r, Monad m) => a -> StrObj m r
@@ -24,18 +27,68 @@ module Zundoko.Object where
   a <- awaitOn $ lift . lift
   case a of
    False ->
-    lift $ modify (1 +)
+    lift $ do
+     modify (1 +)
+     return a
    True ->
     lift $ do
      n <- get
      case 4 <= n of
-      False ->
-       modify $ const 0
+      False -> do
+       put 0
+       return a
       True ->
        lift $ nothing
-  return a
+ 
+ zundokoTrans :: StrObj (MaybeT Identity) Bool -> StrObj (Skeleton Zundoko) ()
+ zundokoTrans = liftStr zundokoRun
+
+ zundokoRun
+  :: MaybeT Identity (Bool, StrObj (MaybeT Identity) Bool)
+  -> Skeleton Zundoko ((), StrObj (MaybeT Identity) Bool)
+ zundokoRun = \case
+  MaybeT (Identity Nothing) -> doko >> kiyoshi
+  MaybeT (Identity (Just (False, o))) -> zun >> zundokoRun (o @- id)
+  MaybeT (Identity (Just (True, o))) -> doko >> zundokoRun (o @- id)
+ 
+ interpretZundoko :: Skeleton Zundoko a -> MaybeT IO a
+ interpretZundoko = debone >>> \case
+  Return a -> return a
+  Zun :>>= k -> do
+   a <- lift $ putStrLn "zun"
+   interpretZundoko $ k a
+  Doko :>>= k -> do
+   a <- lift $ putStrLn "doko"
+   interpretZundoko $ k a
+  Kiyoshi :>>= k -> do
+   lift $ putStrLn "kiyoshi"
+   a <- nothing
+   interpretZundoko $ k a
+
+ zundokoInterpreter :: Object (Skeleton Zundoko) (MaybeT IO)
+ zundokoInterpreter = liftO interpretZundoko
+
+ zundokoInp :: Object f (Skeleton Zundoko) -> Object f (MaybeT IO)
+ zundokoInp = (@>>@ zundokoInterpreter)
+
+ data Zundoko tag where
+  Zun :: Zundoko ()
+  Doko :: Zundoko ()
+  Kiyoshi :: Zundoko a
+ 
+ zun :: Skeleton Zundoko ()
+ zun = bone Zun
+
+ doko :: Skeleton Zundoko ()
+ doko = bone Doko
+
+ kiyoshi :: Skeleton Zundoko a
+ kiyoshi = bone Kiyoshi
 
  type StrObj m a = Object ((->) a) m
+
+ pullStrObj :: StrObj m a -> m (a, StrObj m a)
+ pullStrObj = (@- id)
 
  foldStrObj :: Functor f => (f (a, r) -> r) -> StrObj f a -> r
  foldStrObj f o = f $ fmap (second $ foldStrObj f) $ o @- id
@@ -50,6 +103,12 @@ module Zundoko.Object where
   where
    f' (a, o') = (f a, mapStrObj f o')
 
+ liftStr
+  :: Monad n
+  => (m (a, StrObj m a) -> n (b, StrObj m a))
+  -> StrObj m a -> StrObj n b
+ liftStr = streamObj . awaitOn
+
  streamObj :: Monad m => StateT s m a -> s -> StrObj m a
  streamObj s = stateful $ flip fmap s
 
@@ -62,5 +121,10 @@ module Zundoko.Object where
  awaitOn :: (m (a, StrObj m a) -> n (b, StrObj m a)) -> StateT (StrObj m a) n b
  awaitOn f = StateT $ f . (@- id)
 
+ -- MaybeT
+
  nothing :: Monad m => MaybeT m a
  nothing = MaybeT $ return Nothing
+
+ voidMaybeT :: Functor f => MaybeT f a -> f ()
+ voidMaybeT = void . runMaybeT
