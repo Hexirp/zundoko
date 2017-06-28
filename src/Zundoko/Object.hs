@@ -91,7 +91,7 @@ module Zundoko.Object where
  pullStrObj = (@- id)
 
  foldStrObj :: Functor f => (f (a, r) -> r) -> StrObj f a -> r
- foldStrObj f o = f $ fmap (second $ foldStrObj f) $ o @- id
+ foldStrObj f o = f $ fmap (second $ foldStrObj f) $ pullStrObj o
 
  foldListObj :: r -> (a -> r -> r) -> StrObj (MaybeT Identity) a -> r
  foldListObj x f = foldStrObj $ \case
@@ -99,7 +99,7 @@ module Zundoko.Object where
   MaybeT (Identity (Just (a, r))) -> f a r
  
  mapStrObj :: Functor f => (a -> b) -> StrObj f a -> StrObj f b
- mapStrObj f o = Object $ \g -> fmap (first g . f') (o @- id)
+ mapStrObj f o = Object $ \g -> fmap (first g . f') $ pullStrObj o
   where
    f' (a, o') = (f a, mapStrObj f o')
 
@@ -119,7 +119,7 @@ module Zundoko.Object where
  await = awaitOn id
 
  awaitOn :: (m (a, StrObj m a) -> n (b, StrObj m a)) -> StateT (StrObj m a) n b
- awaitOn f = StateT $ f . (@- id)
+ awaitOn f = StateT $ f . pullStrObj
 
  -- MaybeT
 
