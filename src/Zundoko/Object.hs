@@ -5,6 +5,7 @@ module Zundoko.Object where
  import System.Random (RandomGen, Random, random)
  import Control.Object
  import Control.Monad.Skeleton
+ import Data.Functor.Request
  import Control.Monad.Trans.State.Strict
  import Control.Monad.Trans.Maybe (MaybeT(MaybeT), runMaybeT)
  import Control.Monad.Trans
@@ -85,7 +86,7 @@ module Zundoko.Object where
  kiyoshi :: Skeleton Zundoko a
  kiyoshi = bone Kiyoshi
 
- type StrObj m a = Object ((->) a) m
+ type StrObj m a = Object (Request () a) m
 
  pullStrObj :: StrObj m a -> m (a, StrObj m a)
  pullStrObj = (@- id)
