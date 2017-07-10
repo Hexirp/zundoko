@@ -49,8 +49,8 @@ module Zundoko.Object where
   -> Skeleton Zundoko ((), StrObj (MaybeT Identity) Bool)
  zundokoRun = \case
   MaybeT (Identity Nothing) -> doko >> kiyoshi
-  MaybeT (Identity (Just (False, o))) -> zun >> zundokoRun $ pullStrObj o
-  MaybeT (Identity (Just (True, o))) -> doko >> zundokoRun $ pullStrObj o
+  MaybeT (Identity (Just (False, o))) -> zun >> zundokoRun (pullStrObj o)
+  MaybeT (Identity (Just (True, o))) -> doko >> zundokoRun (pullStrObj o)
  
  interpretZundoko :: Skeleton Zundoko a -> MaybeT IO a
  interpretZundoko = debone >>> \case
