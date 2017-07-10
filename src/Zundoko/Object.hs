@@ -100,7 +100,7 @@ module Zundoko.Object where
   MaybeT (Identity (Just (a, r))) -> f a r
  
  mapStrObj :: Functor f => (a -> b) -> StrObj f a -> StrObj f b
- mapStrObj f o = Object $ \g -> fmap (first g . f') $ pullStrObj o
+ mapStrObj f o = Object $ \(Request _ g) -> fmap (first g . f') $ pullStrObj o
   where
    f' (a, o') = (f a, mapStrObj f o')
 
