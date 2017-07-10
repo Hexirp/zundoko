@@ -11,7 +11,7 @@ module Main where
  main = do
   s <- getArgs
   case s of
-   ((o:_):_) -> O.main
+   (('o':_):_) -> O.main
    _ -> do
     putStrLn ""
     rs <- randStream
