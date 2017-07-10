@@ -89,7 +89,7 @@ module Zundoko.Object where
  type StrObj m a = Object (Request () a) m
 
  pullStrObj :: StrObj m a -> m (a, StrObj m a)
- pullStrObj = (@- id)
+ pullStrObj = (@- request ())
 
  foldStrObj :: Functor f => (f (a, r) -> r) -> StrObj f a -> r
  foldStrObj f o = f $ fmap (second $ foldStrObj f) $ pullStrObj o
