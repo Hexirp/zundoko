@@ -111,7 +111,7 @@ module Zundoko.Object where
  liftStr = streamObj . awaitOn
 
  streamObj :: Monad m => StateT s m a -> s -> StrObj m a
- streamObj s = stateful $ flip fmap s
+ streamObj s = stateful $ \(Request _ f) -> fmap f s
 
  streamObj2 :: Monad m => StateT s1 (StateT s2 m) a -> s1 -> s2 -> StrObj m a
  streamObj2 s a b = streamObj s a @>>@ variable b
