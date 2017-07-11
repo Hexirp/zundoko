@@ -11,6 +11,7 @@ module Zundoko.Object where
  import Control.Monad.Trans
  import Data.Functor.Identity (Identity(Identity))
  import Control.Arrow ((>>>), first, second)
+ import Control.Applicative (empty)
  import Data.Functor (void)
  import Prelude
 
@@ -39,7 +40,7 @@ module Zundoko.Object where
        put 0
        return a
       True ->
-       lift $ nothing
+       lift $ empty
  
  zundokoTrans :: StrObj (MaybeT Identity) Bool -> StrObj (Skeleton Zundoko) ()
  zundokoTrans = liftStr zundokoRun
@@ -63,7 +64,7 @@ module Zundoko.Object where
    interpretZundoko $ k a
   Kiyoshi :>>= k -> do
    lift $ putStrLn "kiyoshi"
-   a <- nothing
+   a <- empty
    interpretZundoko $ k a
 
  zundokoInterpreter :: Object (Skeleton Zundoko) (MaybeT IO)
@@ -123,9 +124,6 @@ module Zundoko.Object where
  awaitOn f = StateT $ f . pullStrObj
 
  -- MaybeT
-
- nothing :: Monad m => MaybeT m a
- nothing = MaybeT $ return Nothing
 
  voidMaybeT :: Functor f => MaybeT f a -> f ()
  voidMaybeT = void . runMaybeT
