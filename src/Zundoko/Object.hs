@@ -40,7 +40,7 @@ module Zundoko.Object where
        put 0
        return a
       True ->
-       lift $ empty
+       lift empty
  
  zundokoTrans :: StrObj (MaybeT Identity) Bool -> StrObj (Skeleton Zundoko) ()
  zundokoTrans = liftStr zundokoRun
@@ -93,7 +93,7 @@ module Zundoko.Object where
  pullStrObj = (@- request ())
 
  foldStrObj :: Functor f => (f (a, r) -> r) -> StrObj f a -> r
- foldStrObj f o = f $ fmap (second $ foldStrObj f) $ pullStrObj o
+ foldStrObj f o = f $ second (foldStrObj f) <$> pullStrObj o
 
  foldListObj :: r -> (a -> r -> r) -> StrObj (MaybeT Identity) a -> r
  foldListObj x f = foldStrObj $ \case
@@ -101,7 +101,7 @@ module Zundoko.Object where
   MaybeT (Identity (Just (a, r))) -> f a r
  
  mapStrObj :: Functor f => (a -> b) -> StrObj f a -> StrObj f b
- mapStrObj f o = Object $ \(Request _ g) -> fmap (first g . f') $ pullStrObj o
+ mapStrObj f o = Object $ \(Request _ g) -> first g . f' <$> pullStrObj o
   where
    f' (a, o') = (f a, mapStrObj f o')
 
