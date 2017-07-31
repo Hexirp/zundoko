@@ -1,7 +1,15 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE GADTs #-}
 
-module Zundoko.Object where
+module Zundoko.Object
+ ( voidMaybeT
+ , pullStrObj
+ , zundokoInp
+ , zundokoTrans
+ , zundokoMtr
+ , zundokoStr
+ , randGen
+ ) where
  import System.Random (RandomGen, Random, random)
  import Control.Object
  import Control.Monad.Skeleton
