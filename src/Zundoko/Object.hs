@@ -18,7 +18,7 @@ module Zundoko.Object
  import Control.Monad.Trans.Maybe (MaybeT(MaybeT), runMaybeT)
  import Control.Monad.Trans
  import Data.Functor.Identity (Identity(Identity))
- import Control.Arrow ((>>>), first, second)
+ import Control.Arrow ((>>>), first)
  import Control.Applicative (empty)
  import Data.Functor (void)
  import Prelude
@@ -99,14 +99,6 @@ module Zundoko.Object
 
  pullStrObj :: StrObj m a -> m (a, StrObj m a)
  pullStrObj = (@- request ())
-
- foldStrObj :: Functor f => (f (a, r) -> r) -> StrObj f a -> r
- foldStrObj f o = f $ second (foldStrObj f) <$> pullStrObj o
-
- foldListObj :: r -> (a -> r -> r) -> StrObj (MaybeT Identity) a -> r
- foldListObj x f = foldStrObj $ \case
-  MaybeT (Identity Nothing) -> x
-  MaybeT (Identity (Just (a, r))) -> f a r
  
  mapStrObj :: Functor f => (a -> b) -> StrObj f a -> StrObj f b
  mapStrObj f o = Object $ \(Request _ g) -> first g . f' <$> pullStrObj o
@@ -124,9 +116,6 @@ module Zundoko.Object
 
  streamObj2 :: Monad m => StateT s1 (StateT s2 m) a -> s1 -> s2 -> StrObj m a
  streamObj2 s a b = streamObj s a @>>@ variable b
-
- await :: StateT (StrObj m a) m a
- await = awaitOn id
 
  awaitOn :: (m (a, StrObj m a) -> n (b, StrObj m a)) -> StateT (StrObj m a) n b
  awaitOn f = StateT $ f . pullStrObj
