@@ -4,11 +4,11 @@
 module Zundoko.Object
  ( voidMaybeT
  , pullStrObj
- , zundokoInp
- , zundokoTrans
- , zundokoMtr
- , zundokoStr
- , randGen
+ , inp
+ , trans
+ , mtr
+ , str
+ , rand
  ) where
  import System.Random (RandomGen, Random, random)
  import Control.Object
@@ -23,17 +23,17 @@ module Zundoko.Object
  import Data.Functor (void)
  import Prelude
 
- randGen :: (RandomGen a, Random r, Monad m) => a -> StrObj m r
- randGen = streamObj $ state random
+ rand :: (RandomGen a, Random r, Monad m) => a -> StrObj m r
+ rand = streamObj $ state random
 
- zundokoStr :: Functor m => StrObj m Int -> StrObj m Bool
- zundokoStr = mapStrObj $ (1 ==) . (`mod` 2)
+ str :: Functor m => StrObj m Int -> StrObj m Bool
+ str = mapStrObj $ (1 ==) . (`mod` 2)
  
- zundokoMtr :: Monad m => StrObj m Bool -> StrObj (MaybeT m) Bool
- zundokoMtr o = zundokoMtr' o 0
+ mtr :: Monad m => StrObj m Bool -> StrObj (MaybeT m) Bool
+ mtr o = mtr' o 0
 
- zundokoMtr' :: Monad m => StrObj m Bool -> Int -> StrObj (MaybeT m) Bool
- zundokoMtr' = streamObj2 $ do
+ mtr' :: Monad m => StrObj m Bool -> Int -> StrObj (MaybeT m) Bool
+ mtr' = streamObj2 $ do
   a <- awaitOn $ lift . lift
   case a of
    False ->
@@ -50,8 +50,8 @@ module Zundoko.Object
       True ->
        lift empty
  
- zundokoTrans :: StrObj (MaybeT Identity) Bool -> StrObj (Skeleton Zundoko) ()
- zundokoTrans = liftStr zundokoRun
+ trans :: StrObj (MaybeT Identity) Bool -> StrObj (Skeleton Zundoko) ()
+ trans = liftStr zundokoRun
 
  zundokoRun
   :: MaybeT Identity (Bool, StrObj (MaybeT Identity) Bool)
@@ -78,8 +78,8 @@ module Zundoko.Object
  zundokoInterpreter :: Object (Skeleton Zundoko) (MaybeT IO)
  zundokoInterpreter = liftO interpretZundoko
 
- zundokoInp :: Object f (Skeleton Zundoko) -> Object f (MaybeT IO)
- zundokoInp = (@>>@ zundokoInterpreter)
+ inp :: Object f (Skeleton Zundoko) -> Object f (MaybeT IO)
+ inp = (@>>@ zundokoInterpreter)
 
  data Zundoko tag where
   Zun :: Zundoko ()

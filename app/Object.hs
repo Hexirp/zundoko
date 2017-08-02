@@ -6,4 +6,4 @@ module Object where
  main :: IO ()
  main = do
   g <- getStdGen
-  voidMaybeT $ pullStrObj $ zundokoInp $ zundokoTrans $ zundokoMtr $ zundokoStr $ randGen g
+  voidMaybeT $ pullStrObj $ inp $ trans $ mtr $ str $ rand g
