@@ -2,7 +2,7 @@
 {-# LANGUAGE GADTs #-}
 
 module Zundoko.Object
- ( voidMaybeT
+ ( effMaybe
  , pullStrObj
  , inp
  , trans
@@ -122,5 +122,5 @@ module Zundoko.Object
 
  -- MaybeT
 
- voidMaybeT :: Functor f => MaybeT f a -> f ()
- voidMaybeT = void . runMaybeT
+ effMaybe :: Functor f => MaybeT f a -> f ()
+ effMaybe = void . runMaybeT
