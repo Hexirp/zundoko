@@ -3,7 +3,7 @@
 
 module Zundoko.Object
  ( effMaybe
- , pullStrObj
+ , pull
  , inp
  , trans
  , mtr
@@ -58,8 +58,8 @@ module Zundoko.Object
   -> Skeleton Zundoko ((), StrObj (MaybeT Identity) Bool)
  zundokoRun = \case
   MaybeT (Identity Nothing) -> doko >> kiyoshi
-  MaybeT (Identity (Just (False, o))) -> zun >> zundokoRun (pullStrObj o)
-  MaybeT (Identity (Just (True, o))) -> doko >> zundokoRun (pullStrObj o)
+  MaybeT (Identity (Just (False, o))) -> zun >> zundokoRun (pull o)
+  MaybeT (Identity (Just (True, o))) -> doko >> zundokoRun (pull o)
  
  interpretZundoko :: Skeleton Zundoko a -> MaybeT IO a
  interpretZundoko = debone >>> \case
@@ -97,11 +97,11 @@ module Zundoko.Object
 
  type StrObj m a = Object (Request () a) m
 
- pullStrObj :: StrObj m a -> m (a, StrObj m a)
- pullStrObj = (@- request ())
+ pull :: StrObj m a -> m (a, StrObj m a)
+ pull = (@- request ())
  
  mapStrObj :: Functor f => (a -> b) -> StrObj f a -> StrObj f b
- mapStrObj f o = Object $ \(Request _ g) -> first g . f' <$> pullStrObj o
+ mapStrObj f o = Object $ \(Request _ g) -> first g . f' <$> pull o
   where
    f' (a, o') = (f a, mapStrObj f o')
 
@@ -118,7 +118,7 @@ module Zundoko.Object
  streamObj2 s a b = streamObj s a @>>@ variable b
 
  awaitOn :: (m (a, StrObj m a) -> n (b, StrObj m a)) -> StateT (StrObj m a) n b
- awaitOn f = StateT $ f . pullStrObj
+ awaitOn f = StateT $ f . pull
 
  -- MaybeT
 

@@ -6,4 +6,4 @@ module Object where
  main :: IO ()
  main = do
   g <- getStdGen
-  effMaybe $ pullStrObj $ inp $ trans $ mtr $ str $ rand g
+  effMaybe $ pull $ inp $ trans $ mtr $ str $ rand g
