@@ -5,7 +5,6 @@ module Zundoko
  , Zundoko(Zun, Doko, Kiyoshi)
  ) where
  import Prelude
- import Control.Category ((>>>))
 
  zundoko :: [Int] -> Zundoko
  zundoko = runZundokoS . toZundokoS
@@ -13,30 +12,35 @@ module Zundoko
  data Zundoko = Zun Zundoko | Doko Zundoko | Kiyoshi
  
  runZundokoS :: ZundokoS -> Zundoko
- runZundokoS = flip zun Zun0
+ runZundokoS x0 = zun x0 Zun0
   where
-   zun = \case
-    ZunS x -> Zun . zun x . inc
-    DokoS x -> Doko . flip dok x
-   inc = \case
+   zun :: ZundokoS -> ZundokoC -> Zundoko
+   zun x s = case x of
+    ZunS x' -> Zun $ zun x' (inc s)
+    DokoS x' -> Doko $ dok x' s
+   inc :: ZundokoC -> ZundokoC
+   inc s = case s of
     Zun0 -> Zun1
     Zun1 -> Zun2
     Zun2 -> Zun3
     Zun3 -> ZunM
     ZunM -> ZunM
-   dok = \case
-    ZunM -> const Kiyoshi
-    _ -> flip zun Zun0
+   dok :: ZundokoS -> ZundokoC -> Zundoko
+   dok x s = case s of
+    ZunM -> Kiyoshi
+    _ -> zun x Zun0
  
  data ZundokoC = Zun0 | Zun1 | Zun2 | Zun3 | ZunM
  
  toZundokoS :: [Int] -> ZundokoS
  toZundokoS = foldr zun eoz
   where
+   eoz :: ZundokoS
    eoz = ZunS $ ZunS $ ZunS $ ZunS dos
    dos = DokoS dos
-   zun = (`mod` 2) >>> (== 1) >>> \case
-    False -> ZunS
-    True -> DokoS
+   zun :: Int -> ZundokoS -> ZundokoS
+   zun x s = case x `mod` 2 == 1 of
+    False -> ZunS s
+    True -> DokoS s
  
  data ZundokoS = ZunS ZundokoS | DokoS ZundokoS
