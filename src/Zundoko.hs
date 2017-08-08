@@ -1,18 +1,18 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Zundoko
- ( zundoko
+ ( zdk
  , Zundoko(Zun, Doko, Kiyoshi)
  ) where
  import Prelude
 
- zundoko :: [Int] -> Zundoko
- zundoko = runZundokoS . toZundokoS
+ zdk :: [Int] -> Zundoko
+ zdk = toZundoko . toZundokoS
 
  data Zundoko = Zun Zundoko | Doko Zundoko | Kiyoshi
  
- runZundokoS :: ZundokoS -> Zundoko
- runZundokoS x0 = zun x0 Zun0
+ toZundoko :: ZundokoS -> Zundoko
+ toZundoko x0 = zun x0 Zun0
   where
    zun :: ZundokoS -> ZundokoC -> Zundoko
    zun x s = case x of

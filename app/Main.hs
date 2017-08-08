@@ -15,7 +15,7 @@ module Main where
    _ -> do
     putStrLn ""
     rs <- randStream
-    runZundoko $ zundoko rs
+    runZundoko $ zdk rs
 
  randStream :: IO [Int]
  randStream = do
