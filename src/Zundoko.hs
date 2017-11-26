@@ -10,6 +10,12 @@ module Zundoko
  zdk = toZundoko . toZundokoS
 
  data Zundoko = Zun Zundoko | Doko Zundoko | Kiyoshi
+
+ zundoko :: (r -> r) -> (r -> r) -> r -> Zundoko -> r
+ zundoko z d k = go where
+  go (Zun x) = z (go x)
+  go (Doko x) = d (go x)
+  go Kiyoshi = k
  
  toZundoko :: ZundokoS -> Zundoko
  toZundoko x0 = zun x0 Zun0
@@ -44,3 +50,8 @@ module Zundoko
     True -> DokoS s
  
  data ZundokoS = ZunS ZundokoS | DokoS ZundokoS
+
+ zundokoS :: (r -> r) -> (r -> r) -> ZundokoS -> r
+ zundokoS z d = go where
+  go (ZunS x) = z (go x)
+  go (DokoS x) = d (go x)
