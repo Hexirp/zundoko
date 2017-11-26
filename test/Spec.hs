@@ -5,4 +5,4 @@ module Main where
  main :: IO ()
  main = do
   g <- getStdGen
-  voidMaybeT $ pullStrObj $ zundokoInp $ zundokoTrans $ zundokoMtr $ zundokoStr $ randGen g
+  effMaybe $ pull $ inp $ trans $ mtr $ str $ rand g
