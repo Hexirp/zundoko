@@ -20,7 +20,6 @@ install:
 
 script:
   - stack --no-terminal build --test --bench --haddock --no-haddock-deps
-  - stack --no-terminal sdist
 
 cache:
   directories:
